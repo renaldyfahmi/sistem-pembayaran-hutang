@@ -80,3 +80,44 @@ class DebtManagerApp:
             maxvalue=len(self.debts))
         if selected_index is None:
             return
+        selected_index -= 1
+        payment_amount_str = simpledialog.askstring(
+            "Tambah Pembayaran", "Masukkan jumlah pembayaran:")
+        if payment_amount_str is None:
+            return
+        try:
+            payment_amount = float(payment_amount_str)
+        except ValueError:
+            messagebox.showerror("Error",
+                                 "Jumlah pembayaran harus berupa angka.")
+            return
+        payment_date = simpledialog.askstring(
+            "Tambah Pembayaran", "Masukkan tanggal pembayaran (YYYY-MM-DD):")
+        if payment_date is None:
+            return
+
+        self.debts[selected_index].add_payment(payment_amount, payment_date)
+        new_balance = self.debts[selected_index].get_balance()
+        messagebox.showinfo(
+            "Informasi",
+            f"Pembayaran berhasil ditambahkan.\nSaldo utang terbaru: Rp{new_balance}"
+        )
+
+    def show_debts(self):
+        if not self.debts:
+            messagebox.showwarning("Peringatan",
+                                   "Tidak ada utang yang tersedia.")
+            return
+
+        info = "\n\n".join(
+            f"Kreditur: {debt.creditor}\nJumlah Utang: Rp{debt.amount}\nTanggal Jatuh Tempo: {debt.due_date}\nSaldo Utang: Rp{debt.get_balance()}\nPembayaran:\n"
+            + "\n".join(f"  - Rp{payment['amount']} pada {payment['date']}"
+                        for payment in debt.payments) for debt in self.debts)
+        messagebox.showinfo("Status Utang", info)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = DebtManagerApp(root)
+    root.mainloop()
+
