@@ -40,3 +40,43 @@ class DebtManagerApp:
                   command=self.show_debts).grid(row=0, column=2, padx=10)
         tk.Button(self.menu_frame, text="Keluar",
                   command=self.root.quit).grid(row=0, column=3, padx=10)
+
+  def add_debt(self):
+        creditor = simpledialog.askstring("Tambah Utang Baru",
+                                          "Masukkan nama kreditur:")
+        if creditor is None:
+            return
+        amount_str = simpledialog.askstring("Tambah Utang Baru",
+                                            "Masukkan jumlah utang:")
+        if amount_str is None:
+            return
+        try:
+            amount = float(amount_str)
+        except ValueError:
+            messagebox.showerror("Error", "Jumlah utang harus berupa angka.")
+            return
+        due_date = simpledialog.askstring(
+            "Tambah Utang Baru", "Masukkan tanggal jatuh tempo (YYYY-MM-DD):")
+        if due_date is None:
+            return
+
+        self.debts.append(Debt(creditor, amount, due_date))
+        messagebox.showinfo("Informasi", "Utang berhasil ditambahkan.")
+
+    def add_payment(self):
+        if not self.debts:
+            messagebox.showwarning("Peringatan",
+                                   "Tidak ada utang yang tersedia.")
+            return
+
+        options = [
+            f"{i+1}. {debt.creditor} - Rp{debt.amount} (Saldo: Rp{debt.get_balance()})"
+            for i, debt in enumerate(self.debts)
+        ]
+        selected_index = simpledialog.askinteger(
+            "Tambah Pembayaran",
+            "Pilih nomor utang untuk pembayaran:\n" + "\n".join(options),
+            minvalue=1,
+            maxvalue=len(self.debts))
+        if selected_index is None:
+            return
